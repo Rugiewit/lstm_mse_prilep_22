@@ -5,3 +5,5 @@ flask
 flask_restful
 scipy
 sqlalchemy
+xlrd
+openpyxl
