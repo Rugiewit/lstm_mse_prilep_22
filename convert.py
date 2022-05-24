@@ -15,7 +15,7 @@ print('walk_dir (absolute) = ' + os.path.abspath(walk_dir))
 
 for root, subdirs, files in os.walk(walk_dir):
     print('--\nroot = ' + root)
-    list_file_path = os.path.join(root, 'my-directory-list.txt')
+
     print('list_file_path = ' + list_file_path)
 
     with open(list_file_path, 'wb') as list_file:
@@ -26,10 +26,10 @@ for root, subdirs, files in os.walk(walk_dir):
             if filename.endswith((".xls", ".xlsx")):
                 file_path = os.path.join(root, filename)
                 to_filename = filename.replace(".xls",".csv")
-                to_filename = filename.replace(".xlsx",".csv")
+                to_filename = "c_" + filename.replace(".xlsx",".csv")
                 to_file_path = os.path.join(root, to_filename)
                 print('\t- file %s (full path: %s)' % (filename, file_path))
-                data_xls = pd.read_excel(file_path, 'Sheet1', dtype=str, index_col=None)
+                data_xls = pd.read_excel(file_path,  dtype=str, index_col=None)
                 data_xls.to_csv(to_file_path, encoding='utf-8', index=False)
 
 
