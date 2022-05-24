@@ -19,7 +19,7 @@ for root, subdirs, files in os.walk(walk_dir):
         if filename.endswith((".xls", ".xlsx")):
             file_path = os.path.join(root, filename)
             to_filename = filename.replace(".xls",".csv")
-            to_filename = "c_" + filename.replace(".xlsx",".csv")
+            to_filename = to_filename.replace(".xlsx",".csv")
             to_file_path = os.path.join(root, to_filename)
             print('\t- file %s (full path: %s)' % (filename, file_path))
             data_xls = pd.read_excel(file_path,  dtype=str, index_col=None)
