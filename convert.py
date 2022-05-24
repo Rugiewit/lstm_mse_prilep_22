@@ -16,8 +16,6 @@ print('walk_dir (absolute) = ' + os.path.abspath(walk_dir))
 for root, subdirs, files in os.walk(walk_dir):
     print('--\nroot = ' + root)
 
-    print('list_file_path = ' + list_file_path)
-
     with open(list_file_path, 'wb') as list_file:
         for subdir in subdirs:
             print('\t- subdirectory ' + subdir)
