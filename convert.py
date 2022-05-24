@@ -16,7 +16,7 @@ print('walk_dir (absolute) = ' + os.path.abspath(walk_dir))
 for root, subdirs, files in os.walk(walk_dir):
     print('--\nroot = ' + root)
     for filename in files:
-        if filename.endswith((".xls", ".xlsx")):
+        if filename.endswith(".xls", ".xlsx"):
             file_path = os.path.join(root, filename)
             to_filename = filename.replace(".xls",".csv")
             to_filename = to_filename.replace(".xlsx",".csv")
