@@ -7,3 +7,5 @@ scipy
 sqlalchemy
 xlrd
 openpyxl
+tensorflow
+keras
