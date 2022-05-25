@@ -8,4 +8,4 @@ venv setup using the requirements.txt
 *convert.py* looks for all xls and xlsx to csv
 
 # How to train
-https://www.youtube.com/watch?v=tepxdcepTbY
+multivariate lstm using keras
