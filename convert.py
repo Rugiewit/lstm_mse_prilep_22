@@ -35,6 +35,7 @@ for root, subdirs, files in os.walk(walk_dir):
                     to_filename_year=to_filename[:4]
                     to_filename_month=to_filename[4:6]
                     extension = filename.split(".")[-1]
+                    to_filename = ".".join((to_filename_month,to_filename_year,extension))
                     to_file_path = os.path.join(root, to_filename)
                     os.rename(from_file_path, to_file_path)
                 if filename.endswith("xlsx"):
@@ -43,6 +44,7 @@ for root, subdirs, files in os.walk(walk_dir):
                     to_filename_year=to_filename[:4]
                     to_filename_month=to_filename[4:6]
                     extension = filename.split(".")[-1]
+                    to_filename = ".".join((to_filename_month,to_filename_year,extension))
                     to_file_path = os.path.join(root, to_filename)
                     os.rename(from_file_path, to_file_path)
 
