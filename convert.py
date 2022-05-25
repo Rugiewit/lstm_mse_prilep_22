@@ -1,4 +1,5 @@
-#importing pandas as pd
+# script meant to cleanup the excel files gathered from MSE and convert them to usable CSV data for machine learning
+
 import pandas as pd
 import os
 import sys
@@ -7,21 +8,20 @@ walk_dir = sys.argv[1]
 
 print('walk_dir = ' + walk_dir)
 
-# If your current working directory may change during script execution, it's recommended to
-# immediately convert program arguments to an absolute path. Then the variable root below will
-# be an absolute path as well. Example:
-# walk_dir = os.path.abspath(walk_dir)
+
 print('walk_dir (absolute) = ' + os.path.abspath(walk_dir))
 exclude = set(['.git','.venv'])
 
 for root, subdirs, files in os.walk(walk_dir):
     subdirs[:] = [d for d in subdirs if d not in exclude]
     print('--\nroot = ' + root)
+
     for filename in files:
+        # cleanup old CSV
         if filename.endswith('.csv'):
             delete_path = os.path.join(root, filename)
             os.remove(delete_path)
-
+        # rename excels for easier transformations
         if filename.endswith((".xls", ".xlsx")):
             if filename.startswith("ReportMK_3_m.01"):
                 to_filename=filename[-11:]
@@ -47,6 +47,24 @@ for root, subdirs, files in os.walk(walk_dir):
                     to_filename = ".".join((to_filename_month,to_filename_year,extension))
                     to_file_path = os.path.join(root, to_filename)
                     os.rename(from_file_path, to_file_path)
+            if " " in filename:
+                cutNr = -8
+                if filename.endswith("xlsx"):
+                    cutNr = -9
+                lowerCaseName=filename.lower()
+                month = lowerCaseName.split(" ")[0]
+                mapper = {"januari":"01","fevruari":"02","mart":"03","april":"04","maj":"05","мај":"05","juni":"06","juli":"07","avgust":"08","septemvri":"09","oktomvri":"10","noemvri":"11","dekemvri":"12"}
+                to_filename_month = mapper[month]
+                to_filename=filename[cutNr:]
+
+                from_file_path = os.path.join(root, filename)
+                to_filename_year=to_filename[:4]
+                extension = filename.split(".")[-1]
+                to_filename = ".".join((to_filename_month,to_filename_year,extension))
+                to_file_path = os.path.join(root, to_filename)
+                os.rename(from_file_path, to_file_path)
+
+
 
             #file_path = os.path.join(root, filename)
             #to_filename = filename.replace(".xls",".csv")
