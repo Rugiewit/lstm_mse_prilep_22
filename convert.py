@@ -4,6 +4,19 @@ import pandas as pd
 import os
 import sys
 
+komercialna = ['Комерцијална банка Скопје','Komercijalna banka Skopje']
+alkaloid = ['Алкалоид Скопје','Alkaloid Skopje']
+fersped =['Фершпед Скопје','Fer{ped Skopje']
+granit=['Гранит Скопје','Granit Skopje']
+makosped=['Макошпед Скопје','Mako{ped Skopje']
+makpetrol=['Макпетрол Скопје','Makpetrol Skopje']
+makedonijaturist=['Македонијатурист Скопје','Makedonija Turist Skopje']
+zkpelagonia=['ЗК Пелагонија Битола','ZK Pelagonija Bitola','Zemjod. komb. Pelagonija Bitola']
+ttkbanka=['ТТК Банка АД Скопје','TTK Banka AD Skopje']
+
+
+companies = {'komercialna':komercialna, 'alkaloid':alkaloid,'fersped':fersped,'granit':granit,'makosped':makosped,'makpetrol':makpetrol,'makedonijaturist':makedonijaturist,'zkpelagonia':zkpelagonia,'ttkbanka':ttkbanka}
+
 def transform_and_cleanup(walk_dir, exclude):
  # transform and cleanup
  for root, subdirs, files in os.walk(walk_dir):
@@ -58,6 +71,10 @@ def transform_and_cleanup(walk_dir, exclude):
                 to_file_path = os.path.join(root, to_filename)
                 os.rename(from_file_path, to_file_path)
 
+def finder(df, row):
+    for col in df:
+        df =  df.loc[df[col]==row[col] | (df[col].isnull() & pd.isnull(row[col]))]
+        return df
 
 def to_usable_csv():
  for root, subdirs, files in os.walk(walk_dir):
@@ -70,12 +87,19 @@ def to_usable_csv():
             to_filename = to_filename.replace(".xlsx",".csv")
             to_file_path = os.path.join(root, to_filename)
             print('\t- file %s (full path: %s)' % (filename, file_path))
-            data_xls = pd.read_excel(file_path,  dtype=str, index_col=None)
+            data_xls = pd.read_excel(file_path, dtype=str, sheet_name=0, header=None, skiprows=2, usecols=[0, 2, 3,4,5], names=['name', 'max', 'min', 'start', 'close'])
+            df = data_xls.dropna()
+            print(df)
+            #df_alkaloid = df[df['A'].isin(alkaloid)]
+            submap=data_xls.loc[data_xls['name'].isin(alkaloid),['max', 'min', 'start', 'close']]
+            print(submap)
+                    
             #data_xls.to_csv(to_file_path, encoding='utf-8', index=False)
 
 #start
 
-
+if len(sys.argv)<2:
+    sys.argv.append('.')
 walk_dir = sys.argv[1]
 
 print('walk_dir = ' + walk_dir)
