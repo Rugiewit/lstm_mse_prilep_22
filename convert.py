@@ -96,7 +96,7 @@ def to_usable_csv():
             to_filename = to_filename.replace(".xlsx",".csv")
             to_file_path = os.path.join(root, to_filename)
             #print('\t- file %s (full path: %s)' % (filename, file_path))
-            data_xls = pd.read_excel(file_path, dtype=str, sheet_name=0, header=None, skiprows=2, usecols=[0,  2, 3,4,5], names=['name', 'max', 'min', 'start', 'close'])
+            data_xls = pd.read_excel(file_path, dtype=str, sheet_name=0, header=None, skiprows=2, usecols=[0,  2, 3,4,5], names=['name', 'max', 'min', 'open', 'close'])
             #cleanup
             df = data_xls.dropna()
             df = trim_all_columns(df)
@@ -111,7 +111,7 @@ def to_usable_csv():
  for key,value in companies.items():
      to_csv_path = os.path.join(walk_dir, key)+".csv"
      print(to_csv_path)
-     df =  pd.DataFrame(columns=['date',  'max', 'min', 'start', 'close'], data=value)
+     df =  pd.DataFrame(columns=['date',  'max', 'min', 'open', 'close'], data=value)
      df = df.sort_values('date')
      df.to_csv(to_csv_path, encoding='utf-8', index=False)
 
