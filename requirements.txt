@@ -9,3 +9,4 @@ xlrd
 openpyxl
 tensorflow
 keras
+spyder‑kernels==0.*

@@ -6,22 +6,23 @@ import sys
 
 komercialna = ['Комерцијална банка Скопје','Komercijalna banka Skopje']
 alkaloid = ['Алкалоид Скопје','Alkaloid Skopje']
-fersped =['Фершпед Скопје','Fer{ped Skopje']
+#fersped =['Фершпед Скопје','Fer{ped Skopje']
 granit=['Гранит Скопје','Granit Skopje']
-makosped=['Макошпед Скопје','Mako{ped Skopje']
 makpetrol=['Макпетрол Скопје','Makpetrol Skopje']
-makedonijaturist=['Македонијатурист Скопје','Makedonija Turist Skopje']
-zkpelagonia=['ЗК Пелагонија Битола','ZK Pelagonija Bitola','Zemjod. komb. Pelagonija Bitola']
-ttkbanka=['ТТК Банка АД Скопје','TTK Banka AD Skopje']
+makedonijaturist=['Македонијатурист Скопје','Makedonija Turist Skopje','Makedonijaturist Skopje']
+#replek = ['Replek Skopje','Реплек Скопје']
+#skopskipazar=['Skopski Pazar Skopje','Скопски Пазар Скопје']
+#zkpelagonia=['ЗК Пелагонија Битола','ZK Pelagonija Bitola','Zemjod. komb. Pelagonija Bitola']
+#ttkbanka=['ТТК Банка АД Скопје','TTK Banka AD Skopje']
 
 
-companies = {'komercialna':komercialna, 'alkaloid':alkaloid,'fersped':fersped,'granit':granit,'makosped':makosped,'makpetrol':makpetrol,'makedonijaturist':makedonijaturist,'zkpelagonia':zkpelagonia,'ttkbanka':ttkbanka}
+companies_desc = {'komercialna':komercialna, 'alkaloid':alkaloid,'granit':granit,'makpetrol':makpetrol,'makedonijaturist':makedonijaturist}
 
 def transform_and_cleanup(walk_dir, exclude):
  # transform and cleanup
  for root, subdirs, files in os.walk(walk_dir):
     subdirs[:] = [d for d in subdirs if d not in exclude]
-    print('--\nroot = ' + root)
+    #print('--\nroot = ' + root)
 
     for filename in files:
         # cleanup old CSV
@@ -71,30 +72,48 @@ def transform_and_cleanup(walk_dir, exclude):
                 to_file_path = os.path.join(root, to_filename)
                 os.rename(from_file_path, to_file_path)
 
-def finder(df, row):
-    for col in df:
-        df =  df.loc[df[col]==row[col] | (df[col].isnull() & pd.isnull(row[col]))]
-        return df
+
+
+def trim_all_columns(df):
+    """
+    Trim whitespace from ends of each value across all series in dataframe
+    """
+    trim_strings = lambda x: x.strip() if isinstance(x, str) else x
+    return df.applymap(trim_strings)
 
 def to_usable_csv():
+ companies = {}
+ for key,value in companies_desc.items():
+     companies[key]=[]    
+     
  for root, subdirs, files in os.walk(walk_dir):
     subdirs[:] = [d for d in subdirs if d not in exclude]
-    print('--\nroot = ' + root)
-    for filename in files:
+    #print('--\nroot = ' + root)
+    for filename in files:        
         if filename.endswith((".xls", ".xlsx")):
             file_path = os.path.join(root, filename)
             to_filename = filename.replace(".xls",".csv")
             to_filename = to_filename.replace(".xlsx",".csv")
             to_file_path = os.path.join(root, to_filename)
-            print('\t- file %s (full path: %s)' % (filename, file_path))
-            data_xls = pd.read_excel(file_path, dtype=str, sheet_name=0, header=None, skiprows=2, usecols=[0, 2, 3,4,5], names=['name', 'max', 'min', 'start', 'close'])
+            #print('\t- file %s (full path: %s)' % (filename, file_path))
+            data_xls = pd.read_excel(file_path, dtype=str, sheet_name=0, header=None, skiprows=2, usecols=[0,  2, 3,4,5], names=['name', 'max', 'min', 'start', 'close'])
+            #cleanup
             df = data_xls.dropna()
-            print(df)
-            #df_alkaloid = df[df['A'].isin(alkaloid)]
-            submap=data_xls.loc[data_xls['name'].isin(alkaloid),['max', 'min', 'start', 'close']]
-            print(submap)
-                    
-            #data_xls.to_csv(to_file_path, encoding='utf-8', index=False)
+            df = trim_all_columns(df)
+
+            #companies_names
+            for c_key, c_value in companies_desc.items():
+                monthdate = filename.split('.')[1]+'/'+filename.split('.')[0]
+                company_row=df.loc[df['name'].isin(c_value)].explode('name').iloc[0].values.flatten().tolist()
+                companies[c_key].append([monthdate]+company_row[1:5])
+    
+ print( companies.keys())
+ for key,value in companies.items():
+     to_csv_path = os.path.join(walk_dir, key)+".csv"
+     print(to_csv_path)
+     df =  pd.DataFrame(columns=['date',  'max', 'min', 'start', 'close'], data=value)
+     df = df.sort_values('date')
+     df.to_csv(to_csv_path, encoding='utf-8', index=False)
 
 #start
 
@@ -106,5 +125,5 @@ print('walk_dir = ' + walk_dir)
 print('walk_dir (absolute) = ' + os.path.abspath(walk_dir))
 exclude = set(['.git','.venv'])
 
-#transform_and_cleanup(walk_dir, exclude)
+transform_and_cleanup(walk_dir, exclude)
 to_usable_csv()

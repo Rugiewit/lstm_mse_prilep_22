@@ -9,3 +9,16 @@ venv setup using the requirements.txt
 
 # How to train
 multivariate lstm using keras
+
+
+#companies
+
+Комерцијална банка Скопје
+Алкалоид Скопје
+Фершпед Скопје
+Гранит Скопје
+Макошпед Скопје
+Макпетрол Скопје
+Македонијатурист Скопје
+ЗК Пелагонија Битола
+ТТК Банка АД Скопје
