@@ -103,7 +103,7 @@ def to_usable_csv():
 
             #companies_names
             for c_key, c_value in companies_desc.items():
-                monthdate = filename.split('.')[1]+'/'+filename.split('.')[0]
+                monthdate = filename.split('.')[1]+'-'+filename.split('.')[0]#+"-01"
                 company_row=df.loc[df['name'].isin(c_value)].explode('name').iloc[0].values.flatten().tolist()
                 companies[c_key].append([monthdate]+company_row[1:5])
     
