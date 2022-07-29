@@ -105,15 +105,17 @@ prediction = model.predict(trainX[-n_months_for_prediction:]) #shape = (n, 1) wh
 #Since we used 5 variables for transform, the inverse expects same dimensions
 #Therefore, let us copy our values 5 times and discard them after inverse transform
 prediction_copies = np.repeat(prediction, df_for_training.shape[1], axis=-1)
-y_pred_future = scaler.inverse_transform(prediction_copies)[:]
+y_pred_future = pd.DataFrame(scaler.inverse_transform(prediction_copies)[:], columns=cols)
 
 # Convert timestamp to date
 forecast_dates = []
 for time_i in predict_period_dates:
     forecast_dates.append(time_i.date())
 
-df_forecast = pd.DataFrame({'date':np.array(forecast_dates), 'predicted':y_pred_future})
+df_forecast=pd.DataFrame({'date':np.array(forecast_dates)})
 df_forecast['date']=pd.to_datetime(df_forecast['date'], format = '%Y-%m-%d')
+y_pred_future['date'] = df_forecast# pd.DataFrame({'date':np.array(forecast_dates), 'max':y_pred_future})
+
 
 original = df[['date', 'max','min','open','close']]
 original = df.copy()
@@ -123,14 +125,5 @@ original = original.loc[original['date'] >= '2020-06-01']
 #mse = mean_squared_error(original[col], df_forecast[col])
 #print(mse)
     
-sns.lineplot(x=original['date'],y=original['open'])
-sns.lineplot(x=df_forecast['date'],y=df_forecast['open'])
-sns.show()
-
-sns.lineplot(x=original['date'],y=original['close'])
-sns.lineplot(x=df_forecast['date'],y=df_forecast['close'])
-sns.show()
-
-sns.lineplot(x=original['date'],y=original['open'])
-sns.lineplot(x=df_forecast['date'],y=df_forecast['open'])
-sns.show()
+sns.lineplot(x=original['date'],y='value', hue="variable", data=pd.melt(original, ['date']))
+sns.lineplot(x=df_forecast['date'],y='value', hue="variable", data=pd.melt(df_forecast, ['date']))
