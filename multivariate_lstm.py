@@ -24,7 +24,7 @@ df = pd.read_csv('./granit.csv')
 #./granit.csv
 #./makpetrol.csv
 #./makedonijaturist.csv
-print(df.head()) #7 columns, including the Date.
+print(df.head()) #5 columns, including the Date.
 
 #Separate dates for future plotting
 train_dates = pd.to_datetime(df['date'])
@@ -56,7 +56,7 @@ trainX = []
 trainY = []
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
-n_past = 5  # Number of past months we want to use to predict the future.
+n_past = 3 # Number of past months we want to use to predict the future.
 
 #Reformat input data into a shape: (n_samples x timesteps x n_features)
 #In my example, my df_for_training_scaled has a shape (180, 5)
@@ -83,18 +83,19 @@ model.summary()
 
 
 # fit the model
-history = model.fit(trainX, trainY, epochs=15, batch_size=4, validation_split=0.1, verbose=1)
+history = model.fit(trainX, trainY, epochs=30, batch_size=4, validation_split=0.1, verbose=1)
 
 plt.plot(history.history['loss'], label='Training loss')
 plt.plot(history.history['val_loss'], label='Validation loss')
 plt.legend()
+plt.show()
 
 #Remember that we can only predict one month in future as our model needs 5 variables
 #as inputs for prediction. We only have all 5 variables until the last month in our dataset.
 n_past = 12
-n_months_for_prediction=12  #let us predict past months 
+n_months_for_prediction=16  #let us predict past months 
 
-predict_period_dates = pd.date_range(list(train_dates)[-n_past], periods=n_months_for_prediction, freq='M').tolist()
+predict_period_dates = pd.date_range(list(train_dates)[-n_past], periods=n_months_for_prediction, freq='MS').tolist()
 print(predict_period_dates)
 
 #Make prediction
@@ -104,28 +105,32 @@ prediction = model.predict(trainX[-n_months_for_prediction:]) #shape = (n, 1) wh
 #Since we used 5 variables for transform, the inverse expects same dimensions
 #Therefore, let us copy our values 5 times and discard them after inverse transform
 prediction_copies = np.repeat(prediction, df_for_training.shape[1], axis=-1)
-y_pred_future = scaler.inverse_transform(prediction_copies)[:,0]
-
+y_pred_future = scaler.inverse_transform(prediction_copies)[:]
 
 # Convert timestamp to date
 forecast_dates = []
 for time_i in predict_period_dates:
     forecast_dates.append(time_i.date())
 
-df_forecast = pd.DataFrame({'date':np.array(forecast_dates), 'open':y_pred_future})
-df_forecast['date']=pd.to_datetime(df_forecast['date'])
-print(df_forecast['date'])
+df_forecast = pd.DataFrame({'date':np.array(forecast_dates), 'predicted':y_pred_future})
+df_forecast['date']=pd.to_datetime(df_forecast['date'], format = '%Y-%m-%d')
 
-original = df[['date', 'open']]
+original = df[['date', 'max','min','open','close']]
+original = df.copy()
 original['date']=pd.to_datetime(original['date'])
-print(original['date'])
+original = original.loc[original['date'] >= '2020-06-01']
 
 #mse = mean_squared_error(original[col], df_forecast[col])
 #print(mse)
-
-original = original.loc[original['date'] >= '2020-06-01']
     
-sns.lineplot(original['date'], original['open'])
-sns.lineplot(df_forecast['date'], df_forecast['open'])
+sns.lineplot(x=original['date'],y=original['open'])
+sns.lineplot(x=df_forecast['date'],y=df_forecast['open'])
+sns.show()
 
+sns.lineplot(x=original['date'],y=original['close'])
+sns.lineplot(x=df_forecast['date'],y=df_forecast['close'])
+sns.show()
 
+sns.lineplot(x=original['date'],y=original['open'])
+sns.lineplot(x=df_forecast['date'],y=df_forecast['open'])
+sns.show()
