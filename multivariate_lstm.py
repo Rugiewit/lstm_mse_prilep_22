@@ -146,7 +146,7 @@ df_forecast=pd.DataFrame({'date':np.array(forecast_dates)})
 df_forecast['date']=pd.to_datetime(df_forecast['date'], format = '%Y-%m-%d')
 y_pred_future['date'] = df_forecast
 
-error_months = 6
+error_months = 12
 date_from = list(train_dates)[-error_months]
 
 
