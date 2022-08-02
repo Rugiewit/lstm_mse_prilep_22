@@ -16,9 +16,10 @@ import seaborn as sns
 from sklearn.metrics import mean_squared_error
 
 #from datetime import datetime
-
+companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
+c_index=0
 #Read the csv file
-df = pd.read_csv('./granit.csv')
+df = pd.read_csv(companies[c_index]+'.csv')
 #./komercialna.csv
 #./alkaloid.csv
 #./granit.csv
@@ -60,10 +61,10 @@ n_past = 3 # Number of past months we want to use to predict the future.
 
 #Reformat input data into a shape: (n_samples x timesteps x n_features)
 #In my example, my df_for_training_scaled has a shape (180, 5)
-#12823 refers to the number of data points and 5 refers to the columns (multi-variables).
 for i in range(n_past, len(df_for_training_scaled) - n_future +1):
     trainX.append(df_for_training_scaled[i - n_past:i, 0:df_for_training.shape[1]])
-    trainY.append(df_for_training_scaled[i + n_future - 1:i + n_future, 0])
+    trainY.append(df_for_training_scaled[i + n_future - 1:i + n_future,0])
+
 
 trainX, trainY = np.array(trainX), np.array(trainY)
 
@@ -76,54 +77,108 @@ model = Sequential()
 model.add(LSTM(64, activation='relu', input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=True))
 model.add(LSTM(32, activation='relu', return_sequences=False))
 model.add(Dropout(0.2))
+model.add(Dense(2))
 model.add(Dense(trainY.shape[1]))
 
-model.compile(optimizer='adam', loss='mse')
+model.compile(optimizer='sgd', loss='mse')
 model.summary()
 
 
 # fit the model
-history = model.fit(trainX, trainY, epochs=30, batch_size=4, validation_split=0.1, verbose=1)
+history = model.fit(trainX, trainY, epochs=100, batch_size=4, validation_split=0.1, verbose=1)
 
 plt.plot(history.history['loss'], label='Training loss')
 plt.plot(history.history['val_loss'], label='Validation loss')
 plt.legend()
+ 
+plt.savefig('figures/'+companies[c_index]+"_loss.pdf")
 plt.show()
+plt.clf()
 
 #Remember that we can only predict one month in future as our model needs 5 variables
 #as inputs for prediction. We only have all 5 variables until the last month in our dataset.
-n_past = 12
-n_months_for_prediction=16  #let us predict past months 
+# generate the multi-step forecasts
+n_months_future = 6
+prediction_future = []
 
-predict_period_dates = pd.date_range(list(train_dates)[-n_past], periods=n_months_for_prediction, freq='MS').tolist()
-print(predict_period_dates)
-
+x_pred = trainX[-1:,:,:]  # last observed input sequence
+y_pred = trainY[-1]         # last observed target value
 #Make prediction
-prediction = model.predict(trainX[-n_months_for_prediction:]) #shape = (n, 1) where n is the n_months_for_prediction
+#for i in range(n_months_for_prediction):
+    # feed the last forecast back to the model as an input
 
+
+for i in range(n_months_future):
+    a=x_pred[:, 1:, :]    
+    b= y_pred.reshape(1,1,1)
+    b = np.repeat(b, df_for_training.shape[1], axis=-1)
+
+    x_pred = np.append(a, b, axis=1)
+    # generate the next forecast
+    y_pred = model.predict(x_pred) 
+    flat = y_pred.flatten()
+    # save the forecast
+    prediction_future.append(flat[0])
+    
+
+    
 #Perform inverse transformation to rescale back to original range
 #Since we used 5 variables for transform, the inverse expects same dimensions
 #Therefore, let us copy our values 5 times and discard them after inverse transform
-prediction_copies = np.repeat(prediction, df_for_training.shape[1], axis=-1)
-y_pred_future = pd.DataFrame(scaler.inverse_transform(prediction_copies)[:], columns=cols)
+    # transform the forecasts back to the original scale
+predict_period_dates = pd.date_range(list(train_dates)[-1], periods=n_months_future, freq='MS').tolist()
+prediction_future = np.array(prediction_future).reshape(-1, 1)
+prediction_copies = np.repeat(prediction_future, df_for_training.shape[1], axis=-1)
+inverse_prediction = scaler.inverse_transform(prediction_copies)[:]
+y_pred_future = pd.DataFrame(inverse_prediction, columns=cols)
 
 # Convert timestamp to date
 forecast_dates = []
 for time_i in predict_period_dates:
     forecast_dates.append(time_i.date())
+    
+
+
+for time_i in predict_period_dates:
+    forecast_dates.append(time_i.date())
 
 df_forecast=pd.DataFrame({'date':np.array(forecast_dates)})
 df_forecast['date']=pd.to_datetime(df_forecast['date'], format = '%Y-%m-%d')
-y_pred_future['date'] = df_forecast# pd.DataFrame({'date':np.array(forecast_dates), 'max':y_pred_future})
+y_pred_future['date'] = df_forecast
+
+error_months = 6
+date_from = list(train_dates)[-error_months]
 
 
 original = df[['date', 'max','min','open','close']]
 original = df.copy()
 original['date']=pd.to_datetime(original['date'])
-original = original.loc[original['date'] >= '2020-06-01']
+original = original.loc[original['date'] >= date_from]
 
-#mse = mean_squared_error(original[col], df_forecast[col])
-#print(mse)
+
+error_prediction = model.predict(trainX[-error_months:]) 
+error_prediction_copies = np.repeat(error_prediction, df_for_training.shape[1], axis=-1)
+error_y_pred = scaler.inverse_transform(error_prediction_copies)[:,0]
+
+error_predict_period_dates = pd.date_range(list(train_dates)[-error_months], periods=error_months, freq='MS').tolist()
+# Convert timestamp to date
+error_dates=[]
+for time_i in error_predict_period_dates:
+    error_dates.append(time_i.date())
     
-sns.lineplot(x=original['date'],y='value', hue="variable", data=pd.melt(original, ['date']))
-sns.lineplot(x=df_forecast['date'],y='value', hue="variable", data=pd.melt(df_forecast, ['date']))
+error_forecast = pd.DataFrame({'date':np.array(error_dates), 'open':error_y_pred})
+error_forecast['date']=pd.to_datetime(error_forecast['date'])
+
+mse = mean_squared_error(original['open'], error_forecast['open'],multioutput='raw_values')
+print("MSE: "+str(mse))
+
+sns.lineplot(x='date',y='open', data=original[['date','open']])
+   
+ax = sns.lineplot(x='date',y='open', data=y_pred_future[['date','open']])
+plt.xticks(rotation=45)
+
+plt.savefig('figures/'+companies[c_index]+"_"+'open'+".pdf")
+plt.show()
+plt.clf()
+
+

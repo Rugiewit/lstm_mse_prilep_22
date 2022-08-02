@@ -16,7 +16,7 @@ makedonijaturist=['Македонијатурист Скопје','Makedonija Tu
 #ttkbanka=['ТТК Банка АД Скопје','TTK Banka AD Skopje']
 
 
-companies_desc = {'komercialna':komercialna, 'alkaloid':alkaloid,'granit':granit,'makpetrol':makpetrol,'makedonijaturist':makedonijaturist}
+companies_desc = {'Комерцијална банка Скопје':komercialna, 'Алкалоид Скопје':alkaloid,'Гранит Скопје':granit,'Макпетрол Скопје':makpetrol,'Македонијатурист Скопје':makedonijaturist}
 
 def transform_and_cleanup(walk_dir, exclude):
  # transform and cleanup
