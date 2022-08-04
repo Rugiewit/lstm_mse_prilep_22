@@ -6,7 +6,6 @@ based on  https://youtu.be/tepxdcepTbY
 """
 
 import numpy as np
-from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import Dense, Dropout
@@ -25,8 +24,8 @@ df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
 n_past = 3 # Number of past months we want to use to predict the future.
-n_months_future = 3 #predict months in future
-
+n_months_future = 5 #predict months in future
+plot_x_count = 16 #how many dates should we show in the plot
 #Separate dates for future plotting
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')
 
@@ -90,6 +89,7 @@ model = Sequential()
 model.add(LSTM(128, activation=activation, input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=True))
 model.add(LSTM(64, activation=activation, return_sequences=False))
 model.add(Dropout(0.1))
+model.add(Dense(2))
 model.add(Dense(trainY.shape[2]))
 
 #optimizer = keras.optimizers.SGD(learning_rate=0.01)
@@ -140,7 +140,7 @@ predict_period_dates = pd.date_range(date_future_first, periods=n_months_future,
 #prediction_future_np = np.array(prediction_future).reshape(-1, 1)
 #prediction_copies = np.repeat(prediction_future_np, df_for_training.shape[1], axis=1)
 #inverse_prediction = scaler.inverse_transform(prediction_copies)[:]
-y_pred_future = pd.DataFrame(inverse_prediction, columns=cols)
+predicted_future = pd.DataFrame(inverse_prediction, columns=cols)
 
 # Convert timestamp to date
 forecast_dates = []
@@ -149,12 +149,10 @@ for time_i in predict_period_dates:
 
 date_forecast=pd.DataFrame({'date':np.array(forecast_dates)})
 date_forecast['date']=pd.to_datetime(date_forecast['date'], format = '%Y-%m')#.dt.to_period('M')
-y_pred_future['date'] = date_forecast
-#--------------------------------------------
+predicted_future['date'] = date_forecast
 #date for the graph
-date_from_error = list(train_dates)[-(error_months)]#add one yaer on the error months
-plot_dates=error_months+
-date_from_plot = list(train_dates)[-(plot_dates)]
+
+date_from_plot = list(all_dates)[-plot_x_count]
 
 
 original = df[['date', 'max','min','open','close']]
@@ -162,30 +160,16 @@ original = df.copy()
 original['date']=pd.to_datetime(original['date'], format = '%Y-%m')#.dt.to_period('M')
 original = original.loc[original['date'] >= pd.to_datetime(date_from_plot, format = '%Y-%m')]#.to_period('M')]
 
-# calculate the errors
-error_original = original.loc[original['date'] >= pd.to_datetime(date_from_error, format = '%Y-%m')]#.to_period('M')]
 
-error_prediction = model.predict(trainX[-error_months:]) 
-error_y_pred = scaler.inverse_transform(error_prediction)[:]
-error_y_pred= pd.DataFrame(error_y_pred, columns=cols)
 
-error_predict_period_dates = pd.date_range(list(train_dates)[-error_months], periods=error_months, freq='MS').tolist()
-# Convert timestamp to date
-error_dates=[]
-for time_i in error_predict_period_dates:
-    error_dates.append(time_i.date())
-
-error_y_pred['date'] = pd.to_datetime(np.array(error_dates), format = '%Y-%m')#.to_period('M')
-
-plot_values=np.concatenate((original['date'],y_pred_future['date'][(n_past-n_future):] ), axis=None)
-plot_values=pd.DataFrame(plot_values, columns = ['date'])
+plot_values=pd.DataFrame(original['date'], columns = ['date'])
 plot_values=pd.to_datetime(plot_values['date'], format = '%Y-%m').dt.to_period('M')
 
 #move the prediction to error 
-date_current= list(error_dates)[-1]
-cond=y_pred_future['date'] <= pd.to_datetime(date_current)
-rows = y_pred_future.loc[cond,:]#current
-y_pred_future.drop(rows.index, inplace=True)
+#date_current= list(error_dates)[-1]
+#cond=y_pred_future['date'] <= pd.to_datetime(date_current)
+#rows = y_pred_future.loc[cond,:]#current
+#y_pred_future.drop(rows.index, inplace=True)
 #move predictions to errors
 #frame = [error_y_pred,rows]
 #error_y_pred = pd.concat(frame, ignore_index=True)
@@ -197,11 +181,11 @@ mape = []
 r2 = []
 # plot the graph
 for col in cols:
-    frames = [error_y_pred[['date',col]], y_pred_future[['date',col]]]     
-    predicted_values = pd.concat(frames, ignore_index = True)
+    #frames = [error_y_pred[['date',col]], y_pred_future[['date',col]]]     
+    #predicted_values = pd.concat(frames, ignore_index = True)
     ax=sns.lineplot(x='date',y=col, data=original[['date',col]],label='real')    
-    ax = sns.lineplot(x='date',y=col, data=predicted_values[['date',col]],label='predicted')
-    ax.set(xticks=plot_values)
+    ax = sns.lineplot(x='date',y=col, data=predicted_future[['date',col]],label='predicted')
+    #ax.set(xticks=plot_values)
     plt.xticks(rotation=45)
     #sns.lineplot(x='date',y=col, data=error_y_pred[['date',col]],label='predicted')   
     ax.legend()
@@ -209,22 +193,22 @@ for col in cols:
     plt.savefig('figures/'+companies[c_index]+'_'+col+".pdf")
     plt.show()
     plt.clf()
-    mse.append( mean_squared_error(error_original[col], error_y_pred[col]))    
-    rms.append(mean_squared_error(error_original[col], error_y_pred[col], squared=False)    )
-    mape.append(mean_absolute_percentage_error(error_original[col], error_y_pred[col])*100    )
-    r2 .append(r2_score(error_original[col],error_y_pred[col]))
+    mse.append( mean_squared_error(df_for_error[col], predicted_future[col]))    
+    rms.append(mean_squared_error(df_for_error[col], predicted_future[col], squared=False)    )
+    mape.append(mean_absolute_percentage_error(df_for_error[col], predicted_future[col])*100    )
+    r2 .append(r2_score(df_for_error[col],predicted_future[col]))
     
 
 
 
 error_map={"Company":companies[c_index],"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, 
-           "n_future":[n_future],"n_past" :[n_past],"n_months_future":[n_months_future], "error_months":[error_months],
+           "n_future":[n_future],"n_past" :[n_past],"n_months_future":[n_months_future],"plot_x_count":[plot_x_count],
            "epochs":[epochs],"batch_size":[batch_size],"optimizer":[optimizer],"loss":[loss],"activation": [activation], 'validation_split':[validation_split],           
            "original_open":original['open'].values,
-           "error_dates" :error_dates,                 
-           "error_y_pred_open":error_y_pred['open'].values,              
+           "error_df['date'].values" :error_df['date'].values, 
+           "error_df['open'].values" :error_df['open'].values, 
            "forecast_dates":forecast_dates,
-           "y_pred_future_open":y_pred_future['open'].values}
+           "predicted_future_open":predicted_future['open'].values}
 edf = pd.DataFrame.from_dict(error_map, orient='index')
 print(edf)
 edf.to_csv('figures/'+companies[c_index]+'_data'+".csv", encoding='utf-8')       
