@@ -23,7 +23,7 @@ c_index=0
 df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
-n_past = 2 # Number of past months we want to use to predict the future.
+n_past = 3 # Number of past months we want to use to predict the future.
 n_months_future = 5 #predict months in future
 plot_x_count = 15 #how many dates should we show in the plot
 #Separate dates for future plotting
@@ -75,7 +75,7 @@ batch_size=4
 optimizer='sgd' #sgd
 loss='mse'#mean_absolute_percentage_error mse
 activation='relu'
-validation_split=0.25
+validation_split=0.33
 #Reformat input data into a shape: (n_samples x timesteps x n_features)
 #In my example, my df_for_training_scaled has a shape (180, 5)
 for i in range(n_past, len(df_for_training_scaled) - n_future +1):
@@ -103,14 +103,16 @@ model.add(Dense(trainY.shape[2]))
 
 #optimizer = keras.optimizers.SGD(learning_rate=0.01)
 model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+
+scores = model.evaluate(errorX,errorY,verbose=1)#trainX, trainY, verbose=1)
+print("loss: %f" % (scores[0]))
+print("Accuracy: %f" % (scores[1]*100))
+
 model.summary()
 
 # fit the model
 history = model.fit(trainX, trainY, epochs=epochs, batch_size=batch_size, validation_split=validation_split, verbose=0,  shuffle= False)
 
-scores = model.evaluate(errorX,errorY,verbose=1)#trainX, trainY, verbose=1)
-print("loss: %f" % (scores[0]))
-print("Accuracy: %f" % (scores[1]*100))
 
 plt.plot(history.history['loss'], label='Training loss')
 plt.plot(history.history['val_loss'], label='Validation loss')
