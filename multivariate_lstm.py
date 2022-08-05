@@ -23,12 +23,12 @@ c_index=0
 df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
-n_past = 3 # Number of past months we want to use to predict the future.
+n_past = 2 # Number of past months we want to use to predict the future.
 n_months_future = 5 #predict months in future
-plot_x_count = 16 #how many dates should we show in the plot
+plot_x_count = 15 #how many dates should we show in the plot
 #Separate dates for future plotting
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')
-
+df.describe()
 all_dates = pd.to_datetime(df['date']).tolist()
 date_future_first=all_dates[-n_months_future]
 
@@ -57,6 +57,7 @@ df_for_error = error_df[cols].astype(float)
 scaler = StandardScaler()
 scaler = scaler.fit(df_for_training)
 df_for_training_scaled = scaler.transform(df_for_training)
+df_for_error_scaled = scaler.transform(df_for_error)
 
 #As required for LSTM networks, we require to reshape an input data into n_samples x timesteps x n_features.
 #In this example, the n_features is 5. We will make timesteps = 14 (past days data used for training).
@@ -64,11 +65,14 @@ df_for_training_scaled = scaler.transform(df_for_training)
 #Empty lists to be populated using formatted training data
 trainX = []
 trainY = []
+#Empty lists to be populated using formatted training data
+errorX = []
+errorY = []
 
 #prediction configs
 epochs=100
 batch_size=4
-optimizer='sgd'
+optimizer='sgd' #sgd
 loss='mse'#mean_absolute_percentage_error mse
 activation='relu'
 validation_split=0.25
@@ -78,8 +82,13 @@ for i in range(n_past, len(df_for_training_scaled) - n_future +1):
     trainX.append(df_for_training_scaled[i - n_past:i, 0:df_for_training.shape[1]])
     trainY.append(df_for_training_scaled[i + n_future - 1:i + n_future,:])
 
+for i in range(n_past, len(df_for_error_scaled) - n_future +1):
+    errorX.append(df_for_error_scaled[i - n_past:i, 0:df_for_error.shape[1]])
+    errorY.append(df_for_error_scaled[i + n_future - 1:i + n_future,:])
+
 
 trainX, trainY = np.array(trainX), np.array(trainY)
+errorX, errorY = np.array(errorX), np.array(errorY)
 
 print('trainX shape == {}.'.format(trainX.shape))
 print('trainY shape == {}.'.format(trainY.shape))
@@ -93,12 +102,15 @@ model.add(Dense(2))
 model.add(Dense(trainY.shape[2]))
 
 #optimizer = keras.optimizers.SGD(learning_rate=0.01)
-model.compile(optimizer=optimizer, loss=loss)
+model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 model.summary()
-#scores = model.evaluate()#trainX, trainY, verbose=1)
-#print("Accuracy: %.2f%%" % (scores*100))
+
 # fit the model
-history = model.fit(trainX, trainY, epochs=epochs, batch_size=batch_size, validation_split=validation_split, verbose=1,  shuffle= False)
+history = model.fit(trainX, trainY, epochs=epochs, batch_size=batch_size, validation_split=validation_split, verbose=0,  shuffle= False)
+
+scores = model.evaluate(errorX,errorY,verbose=1)#trainX, trainY, verbose=1)
+print("loss: %f" % (scores[0]))
+print("Accuracy: %f" % (scores[1]*100))
 
 plt.plot(history.history['loss'], label='Training loss')
 plt.plot(history.history['val_loss'], label='Validation loss')
@@ -203,14 +215,20 @@ for col in cols:
 
 error_map={"Company":companies[c_index],"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, 
            "n_future":[n_future],"n_past" :[n_past],"n_months_future":[n_months_future],"plot_x_count":[plot_x_count],
-           "epochs":[epochs],"batch_size":[batch_size],"optimizer":[optimizer],"loss":[loss],"activation": [activation], 'validation_split':[validation_split],           
+           "epochs":[epochs],"batch_size":[batch_size],"optimizer":[optimizer],"loss_alg":[loss],"activation": [activation],'validation_split':[validation_split],  
+           "loss":  scores[0],
+           "accuracy": scores[1]*100,
            "original_open":original['open'].values,
            "error_df['date'].values" :error_df['date'].values, 
            "error_df['open'].values" :error_df['open'].values, 
-           "forecast_dates":forecast_dates,
-           "predicted_future_open":predicted_future['open'].values}
+           "predicted_future['date']":predicted_future['date'],
+           "predicted_future_open":predicted_future['open'].values,
+           "df.describe":df.describe()}
 edf = pd.DataFrame.from_dict(error_map, orient='index')
+
+
 print(edf)
 edf.to_csv('figures/'+companies[c_index]+'_data'+".csv", encoding='utf-8')       
+df.describe().to_csv('figures/'+companies[c_index]+'_df'+".csv", encoding='utf-8')       
 
 
