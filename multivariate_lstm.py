@@ -18,7 +18,7 @@ from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.metrics import r2_score
 #from datetime import datetime
 companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
-c_index=0
+c_index=4
 #Read the csv file
 df = pd.read_csv(companies[c_index]+'.csv')
 
