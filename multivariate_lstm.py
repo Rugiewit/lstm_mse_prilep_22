@@ -4,7 +4,7 @@
 dataset: macedonian exchange office
 based on  https://youtu.be/tepxdcepTbY
 """
-
+import io
 import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM
@@ -13,9 +13,19 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import StandardScaler
 import seaborn as sns
+from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.metrics import r2_score
+
+def get_model_summary(model):
+    stream = io.StringIO()
+    model.summary(print_fn=lambda x: stream.write(x + '\n'))
+    summary_string = stream.getvalue()
+    stream.close()
+    return summary_string
+
+
 #from datetime import datetime
 companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
 c_index=4
@@ -24,8 +34,8 @@ df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
 n_past = 3 # Number of past months we want to use to predict the future.
-n_months_future = 5 #predict months in future
-plot_x_count = 15 #how many dates should we show in the plot
+n_months_future = 4 #predict months in future
+plot_x_count = 20 #how many dates should we show in the plot
 #Separate dates for future plotting
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')
 df.describe()
@@ -72,10 +82,10 @@ errorY = []
 #prediction configs
 epochs=100
 batch_size=4
-optimizer='sgd' #sgd
+optimizer='sgd' #sgd # RMSprop #adam
 loss='mse'#mean_absolute_percentage_error mse
-activation='relu'
-validation_split=0.33
+activation='relu' #relu # tanh  #
+validation_split=0.3
 #Reformat input data into a shape: (n_samples x timesteps x n_features)
 #In my example, my df_for_training_scaled has a shape (180, 5)
 for i in range(n_past, len(df_for_training_scaled) - n_future +1):
@@ -96,9 +106,9 @@ print('trainY shape == {}.'.format(trainY.shape))
 # define the Autoencoder model
 model = Sequential()
 model.add(LSTM(128, activation=activation, input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=True))
-model.add(LSTM(64, activation=activation, return_sequences=False))
+model.add(LSTM(32, activation="relu", return_sequences=False))
 model.add(Dropout(0.1))
-model.add(Dense(2))
+model.add(Dense(16))
 model.add(Dense(trainY.shape[2]))
 
 #optimizer = keras.optimizers.SGD(learning_rate=0.01)
@@ -110,12 +120,15 @@ print("Accuracy: %f" % (scores[1]*100))
 
 model.summary()
 
-# fit the model
-history = model.fit(trainX, trainY, epochs=epochs, batch_size=batch_size, validation_split=validation_split, verbose=0,  shuffle= False)
 
+# fit the model
+history = model.fit(trainX, trainY, epochs=epochs, batch_size=batch_size, validation_split=validation_split, verbose=1,  shuffle= False)
+print(history)
 
 plt.plot(history.history['loss'], label='Training loss')
+plt.plot(history.history['accuracy'], label='Accuracy')
 plt.plot(history.history['val_loss'], label='Validation loss')
+
 plt.legend()
  
 plt.savefig('figures/'+companies[c_index]+"_loss.pdf")
@@ -188,7 +201,7 @@ plot_values=pd.to_datetime(plot_values['date'], format = '%Y-%m').dt.to_period('
 #frame = [error_y_pred,rows]
 #error_y_pred = pd.concat(frame, ignore_index=True)
 
-
+mae = []
 mse = []   
 rms = []   
 mape = []   
@@ -207,30 +220,34 @@ for col in cols:
     plt.savefig('figures/'+companies[c_index]+'_'+col+".pdf")
     plt.show()
     plt.clf()
+    mae.append( mean_absolute_error(df_for_error[col], predicted_future[col]))    
     mse.append( mean_squared_error(df_for_error[col], predicted_future[col]))    
     rms.append(mean_squared_error(df_for_error[col], predicted_future[col], squared=False)    )
     mape.append(mean_absolute_percentage_error(df_for_error[col], predicted_future[col])*100    )
     r2 .append(r2_score(df_for_error[col],predicted_future[col]))
     
-
-
-
-error_map={"Company":companies[c_index],"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, 
+summary=get_model_summary(model)
+accuracy = str(history.history['accuracy'][-1])
+val_loss= str(history.history['val_loss'][-1])
+model_loss= str(history.history['loss'][-1])
+error_map={"Company":companies[c_index],"MAE":mae,"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, 
            "n_future":[n_future],"n_past" :[n_past],"n_months_future":[n_months_future],"plot_x_count":[plot_x_count],
            "epochs":[epochs],"batch_size":[batch_size],"optimizer":[optimizer],"loss_alg":[loss],"activation": [activation],'validation_split':[validation_split],  
            "loss":  scores[0],
-           "accuracy": scores[1]*100,
+           "accuracy_model": scores[1]*100,
            "original_open":original['open'].values,
            "error_df['date'].values" :error_df['date'].values, 
            "error_df['open'].values" :error_df['open'].values, 
            "predicted_future['date']":predicted_future['date'],
            "predicted_future_open":predicted_future['open'].values,
-           "df.describe":df.describe()}
+           "df.describe":df.describe(),
+           "model_loss:":model_loss,
+           "accuracy:":accuracy,
+           "val_loss:":val_loss,
+           "model.summary":summary}
+
 edf = pd.DataFrame.from_dict(error_map, orient='index')
 
-
-print(edf)
-edf.to_csv('figures/'+companies[c_index]+'_data'+".csv", encoding='utf-8')       
-df.describe().to_csv('figures/'+companies[c_index]+'_df'+".csv", encoding='utf-8')       
+edf.to_csv('figures/'+companies[c_index]+'_data'+".csv", encoding='utf-8')            
 
 
