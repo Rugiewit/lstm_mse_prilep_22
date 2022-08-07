@@ -16,7 +16,8 @@ import seaborn as sns
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
-from sklearn.metrics import r2_score
+
+from scipy import stats
 
 def get_model_summary(model):
     stream = io.StringIO()
@@ -25,16 +26,16 @@ def get_model_summary(model):
     stream.close()
     return summary_string
 
-
 #from datetime import datetime
 companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
+companies_short_names= ['KMB','ALK','GRNT','MPT','MTUR']
 c_index=4
 #Read the csv file
 df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
 n_past = 3 # Number of past months we want to use to predict the future.
-n_months_future = 4 #predict months in future
+n_months_future = 6 #predict months in future
 plot_x_count = 20 #how many dates should we show in the plot
 #Separate dates for future plotting
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')
@@ -131,7 +132,7 @@ plt.plot(history.history['val_loss'], label='Validation loss')
 
 plt.legend()
  
-plt.savefig('figures/'+companies[c_index]+"_loss.pdf")
+plt.savefig('figures/'+companies[c_index]+"_loss.eps",format='eps')
 plt.show()
 plt.clf()
 
@@ -206,6 +207,9 @@ mse = []
 rms = []   
 mape = []   
 r2 = []
+x=[]
+y=[]
+statistics=[]
 # plot the graph
 for col in cols:
     #frames = [error_y_pred[['date',col]], y_pred_future[['date',col]]]     
@@ -213,24 +217,60 @@ for col in cols:
     ax=sns.lineplot(x='date',y=col, data=original[['date',col]],label='real')    
     ax = sns.lineplot(x='date',y=col, data=predicted_future[['date',col]],label='predicted')
     #ax.set(xticks=plot_values)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=75)
     #sns.lineplot(x='date',y=col, data=error_y_pred[['date',col]],label='predicted')   
     ax.legend()
 
-    plt.savefig('figures/'+companies[c_index]+'_'+col+".pdf")
+    plt.savefig('figures/'+companies[c_index]+'_'+col+".eps",format='eps')
     plt.show()
     plt.clf()
-    mae.append( mean_absolute_error(df_for_error[col], predicted_future[col]))    
-    mse.append( mean_squared_error(df_for_error[col], predicted_future[col]))    
-    rms.append(mean_squared_error(df_for_error[col], predicted_future[col], squared=False)    )
-    mape.append(mean_absolute_percentage_error(df_for_error[col], predicted_future[col])*100    )
-    r2 .append(r2_score(df_for_error[col],predicted_future[col]))
+    #errors
+    x.extend(df_for_error[col])
+    y.extend(predicted_future[col])
     
+x=np.asarray(x)
+y=np.asarray(y)
+mae.append( mean_absolute_error(x, y))    
+mse.append( mean_squared_error(x, y))    
+rms.append(mean_squared_error(x, y, squared=False)    )
+mape.append(mean_absolute_percentage_error(x, y)*100    )
+r2.append(np.corrcoef(x, y)[0,1]**2)
+#regression    
+# Using a NumPy array:
+#################################
+# real is depndent variable
+# correlation real data and predicted vales
+# SWAP x and Y
+
+slope, intercept, r_value, p_value, std_err = stats.linregress(y,x)
+statistics.append("slope: "+str(slope))
+statistics.append("intercept: "+str(intercept))
+statistics.append("r_value(correlation): "+str(r_value))
+statistics.append("r^2_value(determination): "+str(r_value**2)) 
+statistics.append("p_value: "+str(p_value))
+statistics.append("std_err: "+str(std_err))
+print(statistics)
+plt.scatter(y, x, color = "b", marker = "o", s = 30)   
+# predicted response vector
+y_pred = intercept + slope*y  
+# plotting the regression line
+plt.plot(y, y_pred, color = "g")  
+plt.text(0.8, 0.1,'y='+('%.2f' % slope)+'*x+'+('%.2f' % intercept), bbox=dict(facecolor='yellow'),horizontalalignment='center',verticalalignment='center',weight='bold', transform=ax.transAxes)
+# putting labels
+plt.xlabel('Prediction')
+plt.ylabel('Real')  
+plt.savefig('figures/'+companies[c_index]+'_regression_'+col+".eps",format='eps')
+###################################################
+# function to show plot
+plt.show()
+plt.clf()
+    
+
 summary=get_model_summary(model)
 accuracy = str(history.history['accuracy'][-1])
 val_loss= str(history.history['val_loss'][-1])
 model_loss= str(history.history['loss'][-1])
-error_map={"Company":companies[c_index],"MAE":mae,"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, 
+error_map={"Company":companies[c_index],"MAE":mae,"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, "statistics":statistics,
            "n_future":[n_future],"n_past" :[n_past],"n_months_future":[n_months_future],"plot_x_count":[plot_x_count],
            "epochs":[epochs],"batch_size":[batch_size],"optimizer":[optimizer],"loss_alg":[loss],"activation": [activation],'validation_split':[validation_split],  
            "loss":  scores[0],
