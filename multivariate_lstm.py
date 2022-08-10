@@ -18,6 +18,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
 
 from scipy import stats
+from tensorflow.python.client import device_lib
 
 def get_model_summary(model):
     stream = io.StringIO()
@@ -26,10 +27,12 @@ def get_model_summary(model):
     stream.close()
     return summary_string
 
-#from datetime import datetime
+print(device_lib.list_local_devices())
+
 companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
 companies_short_names= ['KMB','ALK','GRNT','MPT','MTUR']
-c_index=4
+c_index=3
+
 #Read the csv file
 df = pd.read_csv(companies[c_index]+'.csv')
 
@@ -107,15 +110,15 @@ print('trainY shape == {}.'.format(trainY.shape))
 # define the Autoencoder model
 model = Sequential()
 model.add(LSTM(128, activation=activation, input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=True))
-model.add(LSTM(32, activation="relu", return_sequences=False))
-model.add(Dropout(0.1))
+model.add(LSTM(32, activation=activation, input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=False))
+model.add(Dropout(0.3))
 model.add(Dense(16))
 model.add(Dense(trainY.shape[2]))
 
 #optimizer = keras.optimizers.SGD(learning_rate=0.01)
 model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 
-scores = model.evaluate(errorX,errorY,verbose=1)#trainX, trainY, verbose=1)
+scores = model.evaluate(errorX,errorY,verbose=0)#trainX, trainY, verbose=1)
 print("loss: %f" % (scores[0]))
 print("Accuracy: %f" % (scores[1]*100))
 
@@ -255,8 +258,10 @@ plt.scatter(y, x, color = "b", marker = "o", s = 30)
 y_pred = intercept + slope*y  
 # plotting the regression line
 plt.plot(y, y_pred, color = "g")  
-plt.text(0.8, 0.1,'y='+('%.2f' % slope)+'*x+'+('%.2f' % intercept), bbox=dict(facecolor='yellow'),horizontalalignment='center',verticalalignment='center',weight='bold', transform=ax.transAxes)
+plt.text(0.8, 0.1,'y='+('%.2f' % slope)+'*x+'+('%.2f' % intercept), bbox=dict(facecolor='white'),horizontalalignment='center',verticalalignment='center',weight='bold', transform=ax.transAxes)
 # putting labels
+plt.text(0.1, 0.9,companies_short_names[c_index],horizontalalignment='center',verticalalignment='center',weight='bold', transform=ax.transAxes)
+
 plt.xlabel('Prediction')
 plt.ylabel('Real')  
 plt.savefig('figures/'+companies[c_index]+'_regression_'+col+".eps",format='eps')
