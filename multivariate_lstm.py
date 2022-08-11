@@ -38,7 +38,7 @@ df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
 n_past = 3 # Number of past months we want to use to predict the future.
-n_months_future = 1 #predict months in future
+n_months_future = 6 #predict months in future
 plot_x_count = 20 #how many dates should we show in the plot
 #Separate dates for future plotting
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')

@@ -14,3 +14,7 @@ pr>>> print(tf.keras.__version__)
 This can help individuals and institutions speculate on the stock price trend and help them decide whether to buy or short the stock price to maximize their profit.
 
 With an understanding of what stock and the stock market is, let’s understand why people fascinate by a Machine Learning model that can predict the stock price. A Machine Learning model predicts the value of an observation based on several inputs that are predictors. The stock market is working similarly, i.e., based on several inputs, the stock price fluctuates. However, the bone of contention is that, unlike other problems that generally are predicted, the predictions of stock prices are rather complicated as it is often prey to the butterfly effect. Anything, any event in the outside world, can influence the price of the stock. These include political events, economic news, competitors or related stock movements, and other
+
+Time-series forecasting models are the models that are capable to predict future values based on previously observed values. Time-series forecasting is widely used for non-stationary data. Non-stationary data are called the data whose statistical properties e.g. the mean and standard deviation are not constant over time but instead, these metrics vary over time.
+
+ movement of the chosen data points, such as a security’s price, over a specified period of time with data points recorded at regular intervals.
