@@ -31,14 +31,14 @@ print(device_lib.list_local_devices())
 
 companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
 companies_short_names= ['KMB','ALK','GRNT','MPT','MTUR']
-c_index=3
+c_index=4
 
 #Read the csv file
 df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
 n_past = 3 # Number of past months we want to use to predict the future.
-n_months_future = 6 #predict months in future
+n_months_future = 1 #predict months in future
 plot_x_count = 20 #how many dates should we show in the plot
 #Separate dates for future plotting
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')
@@ -118,9 +118,14 @@ model.add(Dense(trainY.shape[2]))
 #optimizer = keras.optimizers.SGD(learning_rate=0.01)
 model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 
-scores = model.evaluate(errorX,errorY,verbose=0)#trainX, trainY, verbose=1)
-print("loss: %f" % (scores[0]))
-print("Accuracy: %f" % (scores[1]*100))
+scores = model.evaluate(errorX,errorY,verbose=0)#trainX, trainY, verbos
+scores_loss=0
+scores_acc=0
+if(len(scores)>2):
+    scores_loss=scores[0]
+    scores_acc=scores[1]*100
+    print("loss: %f" % (scores_loss))
+    print("Accuracy: %f" % (scores_acc))
 
 model.summary()
 
@@ -135,7 +140,7 @@ plt.plot(history.history['val_loss'], label='Validation loss')
 
 plt.legend()
  
-plt.savefig('figures/'+companies[c_index]+"_loss.eps",format='eps')
+plt.savefig('figures/'+companies[c_index]+"_"+str(n_months_future)+"_loss.eps",format='eps')
 plt.show()
 plt.clf()
 
@@ -185,7 +190,6 @@ predicted_future['date'] = date_forecast
 
 date_from_plot = list(all_dates)[-plot_x_count]
 
-
 original = df[['date', 'max','min','open','close']]
 original = df.copy()
 original['date']=pd.to_datetime(original['date'], format = '%Y-%m')#.dt.to_period('M')
@@ -224,7 +228,7 @@ for col in cols:
     #sns.lineplot(x='date',y=col, data=error_y_pred[['date',col]],label='predicted')   
     ax.legend()
 
-    plt.savefig('figures/'+companies[c_index]+'_'+col+".eps",format='eps')
+    plt.savefig('figures/'+companies[c_index]+'_'+col+"_"+str(n_months_future)+".eps",format='eps')
     plt.show()
     plt.clf()
     #errors
@@ -264,7 +268,7 @@ plt.text(0.1, 0.9,companies_short_names[c_index],horizontalalignment='center',ve
 
 plt.xlabel('Prediction')
 plt.ylabel('Real')  
-plt.savefig('figures/'+companies[c_index]+'_regression_'+col+".eps",format='eps')
+plt.savefig('figures/'+companies[c_index]+'_regression_'+col+"_"+str(n_months_future)+".eps",format='eps')
 ###################################################
 # function to show plot
 plt.show()
@@ -278,8 +282,8 @@ model_loss= str(history.history['loss'][-1])
 error_map={"Company":companies[c_index],"MAE":mae,"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, "statistics":statistics,
            "n_future":[n_future],"n_past" :[n_past],"n_months_future":[n_months_future],"plot_x_count":[plot_x_count],
            "epochs":[epochs],"batch_size":[batch_size],"optimizer":[optimizer],"loss_alg":[loss],"activation": [activation],'validation_split':[validation_split],  
-           "loss":  scores[0],
-           "accuracy_model": scores[1]*100,
+           "loss":  scores_loss,
+           "accuracy_model": scores_acc*100,
            "original_open":original['open'].values,
            "error_df['date'].values" :error_df['date'].values, 
            "error_df['open'].values" :error_df['open'].values, 
@@ -293,6 +297,6 @@ error_map={"Company":companies[c_index],"MAE":mae,"MSE":mse,"RMS":rms,"MAPE":map
 
 edf = pd.DataFrame.from_dict(error_map, orient='index')
 
-edf.to_csv('figures/'+companies[c_index]+'_data'+".csv", encoding='utf-8')            
+edf.to_csv('figures/'+companies[c_index]+"_"+str(n_months_future)+'_data'+".csv", encoding='utf-8')            
 
 

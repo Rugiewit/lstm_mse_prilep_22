@@ -1,0 +1,428 @@
+<?xml version="1.0"?>
+<!DOCTYPE ipe SYSTEM "ipe.dtd">
+<ipe version="70212" creator="Ipe 7.2.13">
+<info created="D:20220811103115" modified="D:20220811110133"/>
+<ipestyle name="basic">
+<symbol name="arrow/arc(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/farc(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/ptarc(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/fptarc(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="mark/circle(sx)" transformations="translations">
+<path fill="sym-stroke">
+0.6 0 0 0.6 0 0 e
+0.4 0 0 0.4 0 0 e
+</path>
+</symbol>
+<symbol name="mark/disk(sx)" transformations="translations">
+<path fill="sym-stroke">
+0.6 0 0 0.6 0 0 e
+</path>
+</symbol>
+<symbol name="mark/fdisk(sfx)" transformations="translations">
+<group>
+<path fill="sym-fill">
+0.5 0 0 0.5 0 0 e
+</path>
+<path fill="sym-stroke" fillrule="eofill">
+0.6 0 0 0.6 0 0 e
+0.4 0 0 0.4 0 0 e
+</path>
+</group>
+</symbol>
+<symbol name="mark/box(sx)" transformations="translations">
+<path fill="sym-stroke" fillrule="eofill">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+-0.4 -0.4 m
+0.4 -0.4 l
+0.4 0.4 l
+-0.4 0.4 l
+h
+</path>
+</symbol>
+<symbol name="mark/square(sx)" transformations="translations">
+<path fill="sym-stroke">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+</path>
+</symbol>
+<symbol name="mark/fsquare(sfx)" transformations="translations">
+<group>
+<path fill="sym-fill">
+-0.5 -0.5 m
+0.5 -0.5 l
+0.5 0.5 l
+-0.5 0.5 l
+h
+</path>
+<path fill="sym-stroke" fillrule="eofill">
+-0.6 -0.6 m
+0.6 -0.6 l
+0.6 0.6 l
+-0.6 0.6 l
+h
+-0.4 -0.4 m
+0.4 -0.4 l
+0.4 0.4 l
+-0.4 0.4 l
+h
+</path>
+</group>
+</symbol>
+<symbol name="mark/cross(sx)" transformations="translations">
+<group>
+<path fill="sym-stroke">
+-0.43 -0.57 m
+0.57 0.43 l
+0.43 0.57 l
+-0.57 -0.43 l
+h
+</path>
+<path fill="sym-stroke">
+-0.43 0.57 m
+0.57 -0.43 l
+0.43 -0.57 l
+-0.57 0.43 l
+h
+</path>
+</group>
+</symbol>
+<symbol name="arrow/fnormal(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/pointed(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/fpointed(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-0.8 0 l
+-1 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/linear(spx)">
+<path stroke="sym-stroke" pen="sym-pen">
+-1 0.333 m
+0 0 l
+-1 -0.333 l
+</path>
+</symbol>
+<symbol name="arrow/fdouble(spx)">
+<path stroke="sym-stroke" fill="white" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+-1 0 m
+-2 0.333 l
+-2 -0.333 l
+h
+</path>
+</symbol>
+<symbol name="arrow/double(spx)">
+<path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
+0 0 m
+-1 0.333 l
+-1 -0.333 l
+h
+-1 0 m
+-2 0.333 l
+-2 -0.333 l
+h
+</path>
+</symbol>
+<pen name="heavier" value="0.8"/>
+<pen name="fat" value="1.2"/>
+<pen name="ultrafat" value="2"/>
+<symbolsize name="large" value="5"/>
+<symbolsize name="small" value="2"/>
+<symbolsize name="tiny" value="1.1"/>
+<arrowsize name="large" value="10"/>
+<arrowsize name="small" value="5"/>
+<arrowsize name="tiny" value="3"/>
+<color name="red" value="1 0 0"/>
+<color name="green" value="0 1 0"/>
+<color name="blue" value="0 0 1"/>
+<color name="yellow" value="1 1 0"/>
+<color name="orange" value="1 0.647 0"/>
+<color name="gold" value="1 0.843 0"/>
+<color name="purple" value="0.627 0.125 0.941"/>
+<color name="gray" value="0.745"/>
+<color name="brown" value="0.647 0.165 0.165"/>
+<color name="navy" value="0 0 0.502"/>
+<color name="pink" value="1 0.753 0.796"/>
+<color name="seagreen" value="0.18 0.545 0.341"/>
+<color name="turquoise" value="0.251 0.878 0.816"/>
+<color name="violet" value="0.933 0.51 0.933"/>
+<color name="darkblue" value="0 0 0.545"/>
+<color name="darkcyan" value="0 0.545 0.545"/>
+<color name="darkgray" value="0.663"/>
+<color name="darkgreen" value="0 0.392 0"/>
+<color name="darkmagenta" value="0.545 0 0.545"/>
+<color name="darkorange" value="1 0.549 0"/>
+<color name="darkred" value="0.545 0 0"/>
+<color name="lightblue" value="0.678 0.847 0.902"/>
+<color name="lightcyan" value="0.878 1 1"/>
+<color name="lightgray" value="0.827"/>
+<color name="lightgreen" value="0.565 0.933 0.565"/>
+<color name="lightyellow" value="1 1 0.878"/>
+<dashstyle name="dashed" value="[4] 0"/>
+<dashstyle name="dotted" value="[1 3] 0"/>
+<dashstyle name="dash dotted" value="[4 2 1 2] 0"/>
+<dashstyle name="dash dot dotted" value="[4 2 1 2 1 2] 0"/>
+<textsize name="large" value="\large"/>
+<textsize name="Large" value="\Large"/>
+<textsize name="LARGE" value="\LARGE"/>
+<textsize name="huge" value="\huge"/>
+<textsize name="Huge" value="\Huge"/>
+<textsize name="small" value="\small"/>
+<textsize name="footnote" value="\footnotesize"/>
+<textsize name="tiny" value="\tiny"/>
+<textstyle name="center" begin="\begin{center}" end="\end{center}"/>
+<textstyle name="itemize" begin="\begin{itemize}" end="\end{itemize}"/>
+<textstyle name="item" begin="\begin{itemize}\item{}" end="\end{itemize}"/>
+<gridsize name="4 pts" value="4"/>
+<gridsize name="8 pts (~3 mm)" value="8"/>
+<gridsize name="16 pts (~6 mm)" value="16"/>
+<gridsize name="32 pts (~12 mm)" value="32"/>
+<gridsize name="10 pts (~3.5 mm)" value="10"/>
+<gridsize name="20 pts (~7 mm)" value="20"/>
+<gridsize name="14 pts (~5 mm)" value="14"/>
+<gridsize name="28 pts (~10 mm)" value="28"/>
+<gridsize name="56 pts (~20 mm)" value="56"/>
+<anglesize name="90 deg" value="90"/>
+<anglesize name="60 deg" value="60"/>
+<anglesize name="45 deg" value="45"/>
+<anglesize name="30 deg" value="30"/>
+<anglesize name="22.5 deg" value="22.5"/>
+<opacity name="10%" value="0.1"/>
+<opacity name="30%" value="0.3"/>
+<opacity name="50%" value="0.5"/>
+<opacity name="75%" value="0.75"/>
+<tiling name="falling" angle="-60" step="4" width="1"/>
+<tiling name="rising" angle="30" step="4" width="1"/>
+</ipestyle>
+<page>
+<layer name="alpha"/>
+<view layers="alpha" active="alpha"/>
+<text layer="alpha" matrix="1 0 0 1 -72 16" transformations="translations" pos="96 800" stroke="black" type="label" width="68.493" height="6.918" depth="0" valign="baseline">Data Collection</text>
+<path matrix="1.4 0 0 1 -126.4 16" stroke="black" pen="heavier">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1 0 0 1 -56 16" stroke="black">
+240 768 m
+240 768 l
+240 768 l
+240 768 l
+h
+</path>
+<text matrix="1 0 0 1 -56 16" transformations="translations" pos="192 800" stroke="black" type="label" width="80.642" height="6.815" depth="1.93" valign="baseline">Data Preprocesing</text>
+<path matrix="0.875 0 0 1 22 32" stroke="black">
+112 736 m
+112 768 l
+240 768 l
+240 736 l
+h
+</path>
+<text matrix="1 0 0 1 -32 16" transformations="translations" pos="192 768" stroke="black" type="label" width="30.995" height="6.926" depth="1.93" valign="baseline">Scaling</text>
+<path matrix="0.875 0 0 1 -34 16" stroke="black">
+176 752 m
+176 720 l
+304 720 l
+304 752 l
+h
+</path>
+<text matrix="1 0 0 1 -64 16" transformations="translations" pos="208 736" stroke="black" type="label" width="60.329" height="6.926" depth="1.93" valign="baseline">Splitting data</text>
+<path matrix="1 0 0 1 8 0" stroke="black">
+176 736 m
+176 736 l
+176 736 l
+176 736 l
+h
+</path>
+<path matrix="1.16667 0 0 1 45.3333 -16" stroke="black">
+-32 816 m
+-32 784 l
+64 784 l
+64 816 l
+h
+</path>
+<text matrix="1 0 0 1 16 0" transformations="translations" pos="32 784" stroke="black" type="label" width="19.837" height="6.127" depth="0" valign="baseline" size="small">MSE</text>
+<text transformations="translations" pos="272 816" stroke="black" type="label" width="27.121" height="6.918" depth="0" valign="baseline">Model</text>
+<text transformations="translations" pos="272 784" stroke="black" type="label" width="25.98" height="6.127" depth="0" valign="baseline" size="small">LSTM</text>
+<text matrix="1 0 0 1 -32 0" transformations="translations" pos="416 816" stroke="black" type="label" width="38.052" height="6.918" depth="0" valign="baseline">Evaluate</text>
+<path matrix="1.16667 0 0 1 45.3333 -48" stroke="black">
+-32 784 m
+-32 752 l
+64 752 l
+64 784 l
+h
+</path>
+<text matrix="1 0 0 1 -16 -32" transformations="translations" pos="32 752" stroke="black" type="label" width="91.185" height="6.726" depth="2.24" valign="baseline" size="small">Min/Max/Open/Close</text>
+<text matrix="1 0 0 1 -56 0" transformations="translations" pos="416 784" stroke="black" type="label" width="79.629" height="6.23" depth="1.74" valign="baseline" size="small">Forecast vs Trailing</text>
+<path matrix="1.16667 0 0 1 45.3333 -16" stroke="black">
+-32 784 m
+-32 752 l
+64 752 l
+64 784 l
+h
+</path>
+<text matrix="1 0 0 1 -31.3948 8" transformations="translations" pos="416 744" stroke="black" type="label" width="25.327" height="6.127" depth="0" valign="baseline" size="small">Errors</text>
+<text matrix="1 0 0 1 -48 0" transformations="translations" pos="408 720" stroke="black" type="label" width="79.713" height="6.23" depth="1.74" valign="baseline" size="small">Regression Analysis</text>
+<path matrix="1.4 0 0 1 -14.4 16" stroke="black" pen="heavier">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.4 0 0 1 97.6 16" stroke="black" pen="heavier">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.4 0 0 1 209.6 16" stroke="black" pen="heavier">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.75 0 0 0.666738 -188 191.945" stroke="black">
+240 768 m
+240 816 l
+176 816 l
+176 768 l
+h
+</path>
+<path matrix="1.4 0 0 1 97.6 -16" stroke="black">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.4 0 0 1 97.6 -48" stroke="black">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.4 0 0 1 97.6 -80" stroke="black">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.4 0 0 1 209.6 -16" stroke="black">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.4 0 0 1 209.6 -48" stroke="black">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<path matrix="1.4 0 0 1 209.6 -80" stroke="black">
+96 816 m
+96 784 l
+176 784 l
+176 816 l
+h
+</path>
+<text transformations="translations" pos="24 752" stroke="black" type="label" width="70.458" height="6.926" depth="1.93" valign="baseline">Monthly Report</text>
+<text matrix="1 0 0 1 -4 0" transformations="translations" pos="240 752" stroke="black" type="label" width="101.481" height="6.918" depth="0" valign="baseline">Batches and Validation</text>
+<text matrix="1 0 0 1 24 0" transformations="translations" pos="248 720" stroke="black" type="label" width="23.551" height="6.808" depth="0" valign="baseline">Train</text>
+<text matrix="1 0 0 1 8 0" transformations="translations" pos="128 720" stroke="black" type="label" width="86.73" height="6.926" depth="1.93" valign="baseline">Training vs Trailing</text>
+<path matrix="1 0 0 1 0 -4" stroke="black" pen="fat">
+8 804 m
+456 804 l
+</path>
+<path stroke="black" pen="fat">
+120 832 m
+120 704 l
+</path>
+<path stroke="black" pen="fat">
+232 832 m
+232 704 l
+</path>
+<path stroke="black" pen="fat">
+344 832 m
+344 704 l
+</path>
+<path stroke="black" pen="fat">
+7.99986 704 m
+456 704 l
+</path>
+<path stroke="black" pen="fat">
+456 704 m
+456 832 l
+</path>
+<path stroke="black" pen="fat">
+8 832 m
+7.99986 704 l
+</path>
+</page>
+</ipe>
