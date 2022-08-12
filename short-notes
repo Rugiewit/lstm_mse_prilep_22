@@ -18,3 +18,45 @@ With an understanding of what stock and the stock market is, let’s understand 
 Time-series forecasting models are the models that are capable to predict future values based on previously observed values. Time-series forecasting is widely used for non-stationary data. Non-stationary data are called the data whose statistical properties e.g. the mean and standard deviation are not constant over time but instead, these metrics vary over time.
 
  movement of the chosen data points, such as a security’s price, over a specified period of time with data points recorded at regular intervals.
+
+(Jain et al., 2018)
+
+optimizer='sgd' #sgd # RMSprop #adam
+loss='mse'#mean_absolute_percentage_error mse
+activation='relu' #relu # tanh  #Rectified Linear Unit
+
+regularization method where input and recurrent connections to LSTM units are probabilistically excluded from activation and weight updates while training a network.
+
+Fraction of the training data to be used as validation data. The model will set apart this fraction of the training data, will not train on it, and will evaluate the loss and any model metrics on this data at the end of each epoch
+
+ layer that is deeply connected with its preceding layer which means the neurons of the layer are
+
+
+
+
+
+
+
+C. Multi-step ahead predictions
+In recent years, many researchers focus in time series
+forecasting, but most of them pay attention to one-step-ahead
+predictions, which is not practical in daily life. For multi-step
+ahead prediction, there are two basic strategies: iterate-based
+and direct-based methods. Iterate-based method [7] uses the
+output of time step t as one of the inputs of time step t+1. The
+main disadvantage of this method is that the error would be
+accumulated to a very large number a few time steps later.
+Direct-based method [8] build different training examples to
+get different models, one model make prediction of the next
+time step, another model make prediction of the next two time
+step and so on. The main disadvantage of this method is the
+need of too much computing resources.
+
+
+
+Iterate-based method uses the
+output of time step t as one of the inputs of time step t+1. The
+main disadvantage of this method is that the error would be
+accumulated to a very large number a few time steps later.
+
+statistical measure in a regression model that determines the proportion of variance in the dependent variable that can be explained by the independent variabl

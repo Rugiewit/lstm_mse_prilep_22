@@ -16,7 +16,7 @@ import seaborn as sns
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
-
+import pingouin as pg
 from scipy import stats
 from tensorflow.python.client import device_lib
 
@@ -32,13 +32,13 @@ print(device_lib.list_local_devices())
 companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
 companies_short_names= ['KMB','ALK','GRNT','MPT','MTUR']
 c_index=4
-
+n_months_future = 6 #predict months in future
 #Read the csv file
 df = pd.read_csv(companies[c_index]+'.csv')
 
 n_future = 1  # Number of months we want to look into the future based on the past months.
 n_past = 3 # Number of past months we want to use to predict the future.
-n_months_future = 6 #predict months in future
+
 plot_x_count = 20 #how many dates should we show in the plot
 #Separate dates for future plotting
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')
@@ -121,7 +121,7 @@ model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 scores = model.evaluate(errorX,errorY,verbose=0)#trainX, trainY, verbos
 scores_loss=0
 scores_acc=0
-if(len(scores)>2):
+if(len(scores)>1):
     scores_loss=scores[0]
     scores_acc=scores[1]*100
     print("loss: %f" % (scores_loss))
@@ -221,8 +221,11 @@ statistics=[]
 for col in cols:
     #frames = [error_y_pred[['date',col]], y_pred_future[['date',col]]]     
     #predicted_values = pd.concat(frames, ignore_index = True)
-    ax=sns.lineplot(x='date',y=col, data=original[['date',col]],label='real')    
-    ax = sns.lineplot(x='date',y=col, data=predicted_future[['date',col]],label='predicted')
+    ax=sns.lineplot(x='date',y=col, data=original[['date',col]],label='real')  
+    if(len(forecast_dates)==1):
+        ax = sns.scatterplot(x='date',y=col, data=predicted_future[['date',col]],label='predicted')
+    else:
+        ax = sns.lineplot(x='date',y=col, data=predicted_future[['date',col]],label='predicted')
     #ax.set(xticks=plot_values)
     plt.xticks(rotation=75)
     #sns.lineplot(x='date',y=col, data=error_y_pred[['date',col]],label='predicted')   
@@ -250,12 +253,23 @@ r2.append(np.corrcoef(x, y)[0,1]**2)
 # SWAP x and Y
 
 slope, intercept, r_value, p_value, std_err = stats.linregress(y,x)
+analysis_df=pg.linear_regression(y,x)
+print(analysis_df)
 statistics.append("slope: "+str(slope))
 statistics.append("intercept: "+str(intercept))
 statistics.append("r_value(correlation): "+str(r_value))
 statistics.append("r^2_value(determination): "+str(r_value**2)) 
 statistics.append("p_value: "+str(p_value))
 statistics.append("std_err: "+str(std_err))
+statistics.append("a_r2: "+str('%.3f' % analysis_df['r2'][1])) 
+statistics.append("b_r2: "+str('%.3f' % analysis_df['r2'][0])) 
+statistics.append("a_t: "+str('%.3f' % analysis_df['T'][1])) 
+statistics.append("b_t: "+str('%.3f' % analysis_df['T'][0])) 
+statistics.append("a_p_value: "+str('%.3f' % analysis_df['pval'][1]))
+statistics.append("b_p_value: "+str('%.3f' % analysis_df['pval'][0]))
+statistics.append("a_std_err: "+str('%.3f' % analysis_df['se'][1]))
+statistics.append("b_std_err: "+str('%.3f' % analysis_df['se'][0]))
+
 print(statistics)
 plt.scatter(y, x, color = "b", marker = "o", s = 30)   
 # predicted response vector
@@ -280,6 +294,7 @@ accuracy = str(history.history['accuracy'][-1])
 val_loss= str(history.history['val_loss'][-1])
 model_loss= str(history.history['loss'][-1])
 error_map={"Company":companies[c_index],"MAE":mae,"MSE":mse,"RMS":rms,"MAPE":mape,"R2":r2, "statistics":statistics,
+           "analysis_df":analysis_df,
            "n_future":[n_future],"n_past" :[n_past],"n_months_future":[n_months_future],"plot_x_count":[plot_x_count],
            "epochs":[epochs],"batch_size":[batch_size],"optimizer":[optimizer],"loss_alg":[loss],"activation": [activation],'validation_split':[validation_split],  
            "loss":  scores_loss,
@@ -299,4 +314,7 @@ edf = pd.DataFrame.from_dict(error_map, orient='index')
 
 edf.to_csv('figures/'+companies[c_index]+"_"+str(n_months_future)+'_data'+".csv", encoding='utf-8')            
 
+print('Ta=%.3f' % analysis_df['T'][1])
+print('Pa%.3f' % analysis_df['pval'][1])
+print('SEa%.3f' % analysis_df['se'][1])
 
