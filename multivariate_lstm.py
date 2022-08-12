@@ -28,10 +28,12 @@ def get_model_summary(model):
     return summary_string
 
 print(device_lib.list_local_devices())
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
 
 companies = ['Комерцијална банка Скопје', 'Алкалоид Скопје','Гранит Скопје','Макпетрол Скопје','Македонијатурист Скопје']
 companies_short_names= ['KMB','ALK','GRNT','MPT','MTUR']
-c_index=4
+c_index=0
 n_months_future = 6 #predict months in future
 #Read the csv file
 df = pd.read_csv(companies[c_index]+'.csv')
@@ -132,11 +134,14 @@ model.summary()
 
 # fit the model
 history = model.fit(trainX, trainY, epochs=epochs, batch_size=batch_size, validation_split=validation_split, verbose=1,  shuffle= False)
-print(history)
+
 
 plt.plot(history.history['loss'], label='Training loss')
 plt.plot(history.history['accuracy'], label='Accuracy')
 plt.plot(history.history['val_loss'], label='Validation loss')
+plt.ylabel('Value')
+plt.xlabel('Epoch')
+plt.text(80, 0.8,companies_short_names[c_index],weight='bold')
 
 plt.legend()
  
@@ -230,6 +235,7 @@ for col in cols:
     plt.xticks(rotation=75)
     #sns.lineplot(x='date',y=col, data=error_y_pred[['date',col]],label='predicted')   
     ax.legend()
+    plt.text(0.2, 0.6,companies_short_names[c_index],horizontalalignment='center',verticalalignment='center',weight='bold',transform = ax.transAxes)
 
     plt.savefig('figures/'+companies[c_index]+'_'+col+"_"+str(n_months_future)+".eps",format='eps')
     plt.show()
@@ -282,7 +288,7 @@ plt.text(0.1, 0.9,companies_short_names[c_index],horizontalalignment='center',ve
 
 plt.xlabel('Prediction')
 plt.ylabel('Real')  
-plt.savefig('figures/'+companies[c_index]+'_regression_'+col+"_"+str(n_months_future)+".eps",format='eps')
+plt.savefig('figures/'+companies[c_index]+'_regression_'+str(n_months_future)+".eps",format='eps')
 ###################################################
 # function to show plot
 plt.show()
