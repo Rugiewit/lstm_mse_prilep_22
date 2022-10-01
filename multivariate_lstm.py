@@ -46,7 +46,7 @@ plot_x_count = 20 #how many dates should we show in the plot
 df['date']=pd.to_datetime(df['date'], format = '%Y-%m')
 df.describe()
 all_dates = pd.to_datetime(df['date']).tolist()
-date_future_first=all_dates[-n_months_future]
+date_future_first=all_dates[-1]
 
 cols = list(df)[1:5]
 print(cols) #['max', 'min', 'open', 'close']
